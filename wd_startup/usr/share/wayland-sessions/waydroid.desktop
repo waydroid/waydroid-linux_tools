@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=WayDroid on Weston
+Comment=Android OS in a container
+Exec=/usr/bin/waydroid-session.sh
+Type=Application
