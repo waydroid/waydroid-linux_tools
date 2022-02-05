@@ -4,7 +4,7 @@ These scripts are intended to aide in configuring and running the Waydroid-only 
 
 To install and test, clone the repo, and cd into the directory, then:
 
-	sudo cp -R usr/* /usr/
+	./install.sh
 
 ## Folder Contents:
 
