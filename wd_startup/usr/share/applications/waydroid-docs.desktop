@@ -1,0 +1,24 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Encoding=UTF-8
+Name=Waydroid Docs
+Type=Application
+Exec=xdg-open https://docs.waydro.id
+Icon=/usr/lib/waydroid/data/AppIcon.png
+Categories=GNOME;GTK;Utility;
+Name[it]=Waydroid Docs
+GenericName[it]=Penguin's eggs
+Comment[it]=Manuale Waydroid
+Name[en]=Waydroid Docs
+GenericName[en]=Waydroid Docs
+Comment[en]=Waydroid Docs
+Name[es]=Waydroid Docs
+GenericName[es]=Waydroid Docs
+Comment[es]=libro de pWaydroid Docs
+Name[pt]=Waydroid Docs
+GenericName[pt]=Waydroid Docs
+Comment[pt]=livro dos Waydroid
+Name[fr]=Waydroid Docs
+GenericName[fr]=Waydroid Docs
+Comment[fr]=livre sur Waydroid
+

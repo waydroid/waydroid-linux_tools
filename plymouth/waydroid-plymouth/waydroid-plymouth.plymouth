@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=waydroid-plymouth
+Description=Waydroid Plymouth theme by - Jon West J
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/waydroid-plymouth
+ScriptFile=/usr/share/plymouth/themes/waydroid-plymouth/waydroid-plymouth.script
