@@ -30,9 +30,8 @@ BLOCKLIST="/etc/skel/.config/geany /etc/skel/.config/Gitkraken \
 /etc/skel/.config/python_keyring /etc/skel/.local/share/flatpak \
 /etc/skel/.local/share/kwalletd /etc/skel/.local/share/Google \
 /etc/skel/.local/share/tracker /etc/skel/.local/share/krita*"
-omitted_packages="gitkraken filezilla htop gparted"
-prepare_waydroid_for_packaging="sudo rm -rf /var/lib/waydroid /home/.waydroid ~/waydroid ~/.share/waydroid ~/.local/share/applications/*aydroid* ~/.local/share/waydroid && \
-sudo waydroid init -f"
+omitted_packages="gitkraken filezilla"
+wd_data_loc="/var/lib/waydroid /home/.waydroid ~/waydroid ~/.share/waydroid ~/.local/share/applications/*aydroid* ~/.local/share/waydroid"
 
 if [ ! -f /usr/bin/eggs ]; then
 	echo -e "${IRed}  penguins-eggs is not installed. Please install and try running again. ${RCol}"
@@ -48,7 +47,7 @@ fi
 echo -e "${IBlu}What do you want to do with eggs?${RCol}"
 echo -e "${IBlu}  1 - Wipe & rebuild ISO${RCol}"
 echo -e "${IBlu}  2 - Generate Backup Folder with your customizations${RCol}"
-echo -e "${IBlu}  3 - ${RCol}"
+echo -e "${IBlu}  3 - Wipe Waydroid data and reinit waydroid images${RCol}"
 echo -e "${IBlu}  4 - ${RCol}"
 
 read -p "Input 1, 2, 3 or 4 for your selection: " choice
@@ -58,7 +57,6 @@ case $choice in
      sudo rm -rf /home/eggs/
      sudo rm -rf $build_folder/Waydroid-Linux*.iso
      sudo rm -rf /etc/skel/
-     $($prepare_waydroid_for_packaging)
      sudo apt remove -y $omitted_packages
      sudo apt autoremove -y 
      read -p "press any key to continue"
@@ -100,7 +98,10 @@ case $choice in
      sudo cp -Rp $home_folder/.local/share/nemo $home_folder/backup/skel/.local/share/
      sudo cp -Rp $home_folder/.local/share/nemo-python $home_folder/backup/skel/.local/share/
      echo -e "${IGre}  All set. You can find what was copied in $home_folder/backup ${RCol}";;
-  3) ;;
+  3) echo -e "${IYel}  Cleaning Up and reiniting Waydroid ${RCol}"
+     sudo rm -rf $wd_data_loc
+     sudo waydroid init -f
+     echo -e "${IGre}  All set. ${RCol}";;
   4) ;;
   *) echo "Unrecognized selection: $choice" ;;
 esac
