@@ -22,15 +22,17 @@ Whi='\e[0;37m';     BWhi='\e[1;37m';    UWhi='\e[4;37m';    IWhi='\e[0;97m';    
 
 home_folder="$(eval echo "~$USER")"
 build_folder="$home_folder/.cache/refried-eggs"
-BLOCKLIST="/etc/skel/.config/geany /etc/skel/.config/Gitkraken \
+BLOCKLIST="/etc/skel/.config/geany /etc/skel/.config/GitKraken \
 /etc/skel/.config/Google /etc/skel/.config/BraveSoftware \
 /etc/skel/.config/chromium /etc/skel/.config/gsconnect \
 /etc/skel/.config/google-chrome-beta /etc/skel/.config/google-chrome-unstable \
 /etc/skel/.config/libaccounts-glib /etc/skel/.config/pulse \
-/etc/skel/.config/python_keyring /etc/skel/.local/share/flatpak \
+/etc/skel/.config/python_keyring /etc/skel/.config/fontconfig \
+/etc/skel/.local/share/flatpak \
 /etc/skel/.local/share/kwalletd /etc/skel/.local/share/Google \
-/etc/skel/.local/share/tracker /etc/skel/.local/share/krita*"
-omitted_packages="gitkraken filezilla"
+/etc/skel/.local/share/tracker /etc/skel/.local/share/krita* "
+external_packages="gitkraken rpi-imager imager stacer bleachbit code"
+omitted_packages="filezilla filezilla-common gnome-builder ubuntu-cleaner"
 wd_data_loc="/var/lib/waydroid /home/.waydroid ~/waydroid ~/.share/waydroid ~/.local/share/applications/*aydroid* ~/.local/share/waydroid"
 
 if [ ! -f /usr/bin/eggs ]; then
@@ -56,9 +58,16 @@ case $choice in
   1) echo -e "${IYel}  Cleaning Up ${RCol}"
      sudo rm -rf /home/eggs/
      sudo rm -rf $build_folder/Waydroid-Linux*.iso
+     sudo rm -rf $build_folder/Waydroid-Linux*.sha
      sudo rm -rf /etc/skel/
-     sudo apt remove -y $omitted_packages
-     sudo apt autoremove -y 
+     # Remove
+     for i in $external_packages; do
+      sudo apt remove -y $i
+     done
+     for i in $omitted_packages; do
+      sudo apt remove -y $i 
+     done
+     sudo apt autoremove -y
      read -p "press any key to continue"
      echo -e "${IYel}  Rebuilding skel and locals ${RCol}"
      sudo eggs calamares --install
@@ -78,9 +87,16 @@ case $choice in
      sudo mv /home/eggs/*.iso $build_folder
      sudo chown admin $build_folder/Waydroid-Linux*.iso
      echo -e "${IYel}  Restoring ommitted packages ${RCol}"
+     # Install
      for i in $omitted_packages; do
-         sudo apt-get install -y $i
+      sudo apt-get install -y $i 
      done
+     sudo apt --fix-broken install
+     for i in $external_packages; do
+      sudo dpkg -i $home_folder/Downloads/$i*
+     done
+     sudo apt --fix-broken install
+
      echo -e "${IGre}  All set. ISO can be found in $build_folder${RCol}";;
   2) echo -e "${IYel}  Gathering resources ${RCol}"
      mkdir -p $home_folder/backup
