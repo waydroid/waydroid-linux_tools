@@ -88,6 +88,7 @@ case $choice in
      sudo chown admin $build_folder/Waydroid-Linux*.iso
      echo -e "${IYel}  Restoring ommitted packages ${RCol}"
      # Install
+     sudo apt update
      for i in $omitted_packages; do
       sudo apt-get install -y $i 
      done
