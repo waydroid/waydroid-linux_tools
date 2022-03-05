@@ -15,6 +15,7 @@ sudo apt install weston mutter
 echo "now installing..."
 sudo chmod +x usr/bin
 sudo cp -rp usr/* /usr/
+cp -r home/ $HPATH/
 
 read -p "Do you want to configure Waydroid-Session launch type (y/n)?" choice
 case "$choice" in 
