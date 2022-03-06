@@ -17,6 +17,7 @@ Pur='\e[0;35m';     BPur='\e[1;35m';    UPur='\e[4;35m';    IPur='\e[0;95m';    
 Cya='\e[0;36m';     BCya='\e[1;36m';    UCya='\e[4;36m';    ICya='\e[0;96m';    BICya='\e[1;96m';   On_Cya='\e[46m';    On_ICya='\e[0;106m';
 Whi='\e[0;37m';     BWhi='\e[1;37m';    UWhi='\e[4;37m';    IWhi='\e[0;97m';    BIWhi='\e[1;97m';   On_Whi='\e[47m';    On_IWhi='\e[0;107m';
 
+sudo apt install ubuntu-gnome-desktop -y
 sudo snap remove snap-store -y
 sudo snap remove gtk-common-themes -y
 sudo snap remove gnome-3-34-1804 -y
@@ -33,18 +34,32 @@ sudo apt purge gnome-mahjongg -y
 echo "${IBlu}I dont know the pakage name of solitaire.${RCol}"
 echo "${IBlu}but I removed all the gnome games${RCol}"
 sudo apt install gnome-software -y
+#~ sudo apt install gnome-shell gnome-cards-data libgtk2-perl cups-pdf smbclient unrar fonts-noto-cjk-extra desktop-base hplip-doc hplip-gui python3-notify2 lirc raptor2-utils rasqal-utils librdf-storage-postgresql librdf-storage-mysql librdf-storage-sqlite librdf-storage-virtuoso redland-utils gstreamer1.0-plugins-bad breeze-icon-theme fonts-crosextra-caladea fonts-crosextra-carlito sg3-utils samba python3-renderpm-dbg python-reportlab-doc remmina-plugin-exec remmina-plugin-spice remmina-plugin-www ttf-lyx libotr5 -y 
 sudo apt purge gnome-software-plugin-snap -y
 echo "${IBlu}Now you have a REAL SOFTWARE CENTER!${RCol}"
 sudo apt purge thunderbird
-sudo apt remove flatpak gnome-software-plugin-flatpak
-sudo apt purge flatpak
-echo "${IBlu}FlatPak Removed!${RCol}"
+sudo apt install -y flatpak gnome-software-plugin-flatpak
+echo "${IBlu}FlatPak survived!${RCol}"
 sudo apt purge shotwell -y
 echo "${IBlu}i dont use shotwell${RCol}"
 sudo apt purge seahorse -y
 echo "${IBlu}seahorse removed${RCol}"
 sudo apt purge remmina -y
 echo "${IBlu}remmina removed${RCol}"
+sudo apt purge gnome-sudoku gnome-mines gnome-mahjongg aisleriot -y
+echo "${IBlu}gnome-sudoku removed${RCol}"
+sudo apt purge libreoffice* -y
+echo "${IBlu}libreoffice removed${RCol}"
+sudo apt purge yelp* -y
+echo "${IBlu}yelp removed${RCol}"
+sudo apt purge evince -y
+echo "${IBlu}evince removed${RCol}"
+sudo apt purge thunderbird -y
+echo "${IBlu}thunderbird removed${RCol}"
+sudo apt purge gnome-todo  -y
+echo "${IBlu}gnome-todo  removed${RCol}"
+sudo apt purge rhythmbox rhythmbox-plugins rhythmbox-plugin-alternative-toolbar -y
+echo "${IBlu}rhythmbox  removed${RCol}"
 sudo apt update && sudo apt upgrade -y && sudo apt full-upgrade -y
 echo "${IBlu}Now ubuntu is updated!${RCol}"
 sudo apt install gnome-tweaks gnome-shell-extension-prefs -y
