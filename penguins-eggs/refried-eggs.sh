@@ -26,9 +26,8 @@ BLOCKLIST="/etc/skel/.config/geany /etc/skel/.config/GitKraken \
 /etc/skel/.config/Google /etc/skel/.config/BraveSoftware \
 /etc/skel/.config/chromium /etc/skel/.config/gsconnect \
 /etc/skel/.config/google-chrome-beta /etc/skel/.config/google-chrome-unstable \
-/etc/skel/.config/libaccounts-glib /etc/skel/.config/pulse \
+/etc/skel/.config/libaccounts-glib \
 /etc/skel/.config/python_keyring /etc/skel/.config/fontconfig \
-/etc/skel/.local/share/flatpak \
 /etc/skel/.local/share/kwalletd /etc/skel/.local/share/Google \
 /etc/skel/.local/share/tracker /etc/skel/.local/share/krita* "
 external_packages="gitkraken rpi-imager imager stacer bleachbit code"
@@ -67,7 +66,7 @@ case $choice in
      for i in $omitted_packages; do
       sudo apt remove -y $i 
      done
-     sudo apt autoremove -y
+     #~ sudo apt autoremove -y
      read -p "press any key to continue"
      echo -e "${IYel}  Rebuilding skel and locals ${RCol}"
      sudo eggs calamares --install
