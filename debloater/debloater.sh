@@ -34,6 +34,7 @@ sudo apt purge gnome-mahjongg -y
 echo "${IBlu}I dont know the pakage name of solitaire.${RCol}"
 echo "${IBlu}but I removed all the gnome games${RCol}"
 sudo apt install gnome-software -y
+sudo apt install gnome-session -y 
 #~ sudo apt install gnome-shell gnome-cards-data libgtk2-perl cups-pdf smbclient unrar fonts-noto-cjk-extra desktop-base hplip-doc hplip-gui python3-notify2 lirc raptor2-utils rasqal-utils librdf-storage-postgresql librdf-storage-mysql librdf-storage-sqlite librdf-storage-virtuoso redland-utils gstreamer1.0-plugins-bad breeze-icon-theme fonts-crosextra-caladea fonts-crosextra-carlito sg3-utils samba python3-renderpm-dbg python-reportlab-doc remmina-plugin-exec remmina-plugin-spice remmina-plugin-www ttf-lyx libotr5 -y 
 sudo apt purge gnome-software-plugin-snap -y
 echo "${IBlu}Now you have a REAL SOFTWARE CENTER!${RCol}"
