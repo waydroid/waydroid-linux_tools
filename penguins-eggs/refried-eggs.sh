@@ -20,8 +20,10 @@ Whi='\e[0;37m';     BWhi='\e[1;37m';    UWhi='\e[4;37m';    IWhi='\e[0;97m';    
 
 # Define variables
 
-home_folder="$(eval echo "~$USER")"
-build_folder="$home_folder/.cache/refried-eggs"
+# home_folder="$(eval echo "~$USER")"
+username="$(who mom likes | sed -n 's/^\([^ ]*\).*/\1/p')"
+build_folder="/home/$username/.cache/refried-eggs"
+home_folder="/home/$username"
 BLOCKLIST="/etc/skel/.config/geany /etc/skel/.config/GitKraken \
 /etc/skel/.config/Google /etc/skel/.config/BraveSoftware \
 /etc/skel/.config/chromium /etc/skel/.config/gsconnect \
@@ -40,32 +42,26 @@ if [ ! -f /usr/bin/eggs ]; then
 fi
 
 # Ask what command they want
-
 if [ ! -d $build_folder ]; then
-    mkdir $build_folder
-fi
+   echo "mkdir -p $build_folder"
+   mkdir -p $build_folder
+   # mkdir -p $(eval echo "~$USER")/.cache/refried-eggs
+fi 
 
 echo -e "${IBlu}What do you want to do with eggs?${RCol}"
 echo -e "${IBlu}  1 - Wipe & rebuild ISO${RCol}"
 echo -e "${IBlu}  2 - Generate Backup Folder with your customizations${RCol}"
 echo -e "${IBlu}  3 - Wipe Waydroid data and reinit waydroid images${RCol}"
-echo -e "${IBlu}  4 - ${RCol}"
+echo -e "${IBlu}  4 - Generate just skel and locals${RCol}"
 
 read -p "Input 1, 2, 3 or 4 for your selection: " choice
 
 case $choice in
   1) echo -e "${IYel}  Cleaning Up ${RCol}"
      sudo rm -rf /home/eggs/
-     sudo rm -rf $build_folder/Waydroid-Linux*.iso
-     sudo rm -rf $build_folder/Waydroid-Linux*.sha
+     sudo rm -rf $build_folder/*.iso
+     sudo rm -rf $build_folder/*.sha
      sudo rm -rf /etc/skel/
-     # Remove
-     for i in $external_packages; do
-      sudo apt remove -y $i
-     done
-     for i in $omitted_packages; do
-      sudo apt remove -y $i 
-     done
      #~ sudo apt autoremove -y
      read -p "press any key to continue"
      echo -e "${IYel}  Rebuilding skel and locals ${RCol}"
@@ -81,20 +77,16 @@ case $choice in
      fi
      read -p "press any key to continue"
      echo -e "${IYel}  Refrying your eggs ${RCol}"
+     sudo eggs dad -d
      sudo eggs dad
      echo -e "${IYel}  Moving .iso to a folder you can access ${RCol}"
      sudo mv /home/eggs/*.iso $build_folder
-     sudo chown admin $build_folder/Waydroid-Linux*.iso
+     sudo chown $username $build_folder/*.iso
+     echo -e $(ls -a $build_folder/*.iso)
      echo -e "${IYel}  Restoring ommitted packages ${RCol}"
      # Install
      sudo apt update
-     for i in $omitted_packages; do
-      sudo apt-get install -y $i 
-     done
-     sudo apt --fix-broken install
-     for i in $external_packages; do
-      sudo dpkg -i $home_folder/Downloads/$i*
-     done
+
      sudo apt --fix-broken install
 
      echo -e "${IGre}  All set. ISO can be found in $build_folder${RCol}";;
@@ -113,12 +105,36 @@ case $choice in
      sudo cp -Rp $home_folder/.local/share/nautilus-python $home_folder/backup/skel/.local/share/
      sudo cp -Rp $home_folder/.local/share/nemo $home_folder/backup/skel/.local/share/
      sudo cp -Rp $home_folder/.local/share/nemo-python $home_folder/backup/skel/.local/share/
+     # Now for the rest of the customizations
+     sudo cp -Rp $home_folder/.local/bin $home_folder/backup/skel/.local/
+     sudo cp -Rp $home_folder/.local/share/gnome* $home_folder/backup/skel/.local/share/
+     sudo cp -Rp $home_folder/.local/share/wpm $home_folder/backup/skel/.local/share/
+     sudo cp -Rp $home_folder/.local/share/evolution $home_folder/backup/skel/.local/share/
+     sudo cp -Rp $home_folder/.local/share/flatpak $home_folder/backup/skel/.local/share/
+     sudo cp -Rp $home_folder/.local/share/webkitgtk $home_folder/backup/skel/.local/share/
+     sudo cp -Rp $home_folder/.local/share/waydroid $home_folder/backup/skel/.local/share/
      echo -e "${IGre}  All set. You can find what was copied in $home_folder/backup ${RCol}";;
   3) echo -e "${IYel}  Cleaning Up and reiniting Waydroid ${RCol}"
      sudo rm -rf $wd_data_loc
      sudo waydroid init -f
      echo -e "${IGre}  All set. ${RCol}";;
-  4) ;;
+  4) echo -e "${IYel}  Cleaning Up ${RCol}"
+     sudo rm -rf /home/eggs/
+     sudo rm -rf $build_folder/*.iso
+     sudo rm -rf $build_folder/*.sha
+     sudo rm -rf /etc/skel/
+     echo -e "${IYel}  Rebuilding skel and locals ${RCol}"
+     sudo eggs calamares --install
+     sudo eggs tools:skel
+     sudo cp -Rp $home_folder/backup/skel/ /etc/
+     echo -e "${IYel}  Removing blocklisted items ${RCol}"
+     sudo rm -rf $BLOCKLIST
+     echo -e "${IYel}  Updating yolk ${RCol}"
+     if [ ! -d /usr/local/yolk ]; then
+          sudo rm -rf /usr/local/yolk
+          sudo cp -r /var/local/yolk /usr/local/
+     fi
+     read -p "press any key to continue";;
   *) echo "Unrecognized selection: $choice" ;;
 esac
 

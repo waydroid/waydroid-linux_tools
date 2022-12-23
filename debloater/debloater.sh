@@ -24,13 +24,13 @@ fi
 sudo apt install gnome-software -y
 sudo apt install gnome-session -y 
 #~ sudo apt install gnome-shell gnome-cards-data libgtk2-perl cups-pdf smbclient unrar fonts-noto-cjk-extra desktop-base hplip-doc hplip-gui python3-notify2 lirc raptor2-utils rasqal-utils librdf-storage-postgresql librdf-storage-mysql librdf-storage-sqlite librdf-storage-virtuoso redland-utils gstreamer1.0-plugins-bad breeze-icon-theme fonts-crosextra-caladea fonts-crosextra-carlito sg3-utils samba python3-renderpm-dbg python-reportlab-doc remmina-plugin-exec remmina-plugin-spice remmina-plugin-www ttf-lyx libotr5 -y 
-sudo snap remove snap-store -y
-sudo snap remove gtk-common-themes -y
-sudo snap remove gnome-3-34-1804 -y
-sudo snap remove core18 -y
-sudo apt purge snapd -y
-echo "${IBlu}Snap and Snapd are removed!${RCol}"
-sudo apt-mark hold snap snapd
+# sudo snap remove snap-store -y
+# sudo snap remove gtk-common-themes -y
+# sudo snap remove gnome-3-34-1804 -y
+# sudo snap remove core18 -y
+# sudo apt purge snapd -y
+# echo "${IBlu}Snap and Snapd are removed!${RCol}"
+# sudo apt-mark hold snap snapd
 echo "${IBlu}Snap/Snapd are now blocked from Ubuntu!${RCol}"
 sudo apt purge yelp -y
 echo "${IBlu}The unhelpful help app is removed!${RCol}"
@@ -39,7 +39,7 @@ sudo apt purge gnome-mines -y
 sudo apt purge gnome-mahjongg -y
 echo "${IBlu}I dont know the pakage name of solitaire.${RCol}"
 echo "${IBlu}but I removed all the gnome games${RCol}"
-sudo apt purge gnome-software-plugin-snap -y
+# sudo apt purge gnome-software-plugin-snap -y
 echo "${IBlu}Now you have a REAL SOFTWARE CENTER!${RCol}"
 sudo apt purge thunderbird
 sudo apt install -y flatpak gnome-software-plugin-flatpak

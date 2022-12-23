@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Waydroid (Full UI)
+Exec=waydroid show-full-ui
+X-Purism-FormFactor=Workstation;Mobile;
+Icon=/usr/lib/waydroid/data/AppIcon.png
