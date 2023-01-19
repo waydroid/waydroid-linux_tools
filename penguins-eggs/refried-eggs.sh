@@ -22,7 +22,7 @@ Whi='\e[0;37m';     BWhi='\e[1;37m';    UWhi='\e[4;37m';    IWhi='\e[0;97m';    
 
 # home_folder="$(eval echo "~$USER")"
 username="$(who mom likes | sed -n 's/^\([^ ]*\).*/\1/p')"
-build_folder="/home/$username/.cache/refried-eggs"
+build_folder="/home/$username/refried-eggs/out"
 home_folder="/home/$username"
 BLOCKLIST="/etc/skel/.config/geany /etc/skel/.config/GitKraken \
 /etc/skel/.config/Google /etc/skel/.config/BraveSoftware \
@@ -35,6 +35,95 @@ BLOCKLIST="/etc/skel/.config/geany /etc/skel/.config/GitKraken \
 external_packages="gitkraken rpi-imager imager stacer bleachbit code"
 omitted_packages="filezilla filezilla-common gnome-builder ubuntu-cleaner"
 wd_data_loc="/var/lib/waydroid /home/.waydroid ~/waydroid ~/.share/waydroid ~/.local/share/applications/*aydroid* ~/.local/share/waydroid"
+ignore_these_apps=""
+
+# Functions
+
+# Generate the backup folder based on content in .local, .cache, etc. 
+doGenerateBackup(){
+   echo -e "${IYel}  Gathering resources ${RCol}"
+   echo -e "${IGre}  Starting backup generation ${RCol}"
+   mkdir -p $home_folder/backup
+   mkdir -p $home_folder/backup/skel
+   mkdir -p $home_folder/backup/skel/.local
+   mkdir -p $home_folder/backup/skel/.local/share
+   mkdir -p $home_folder/backup/skel/.config
+   mkdir -p $home_folder/backup/skel/.cache
+   sudo cp -Rp $home_folder/.themes $home_folder/backup/skel/
+   sudo cp -Rp $home_folder/.icons $home_folder/backup/skel/
+   sudo cp -Rp $home_folder/.backgrounds $home_folder/backup/skel/
+   sudo cp -Rp $home_folder/.local/share/applications $home_folder/backup/skel/.local/share/
+   sudo cp -Rp $home_folder/.local/share/backgrounds $home_folder/backup/skel/.local/share/
+   sudo cp -Rp $home_folder/.local/share/icons $home_folder/backup/skel/.local/share/
+   sudo cp -Rp $home_folder/.local/share/nautilus $home_folder/backup/skel/.local/share/
+   sudo cp -Rp $home_folder/.local/share/nautilus-python $home_folder/backup/skel/.local/share/
+   sudo cp -Rp $home_folder/.local/share/nemo $home_folder/backup/skel/.local/share/
+   sudo cp -Rp $home_folder/.local/share/nemo-python $home_folder/backup/skel/.local/share/
+   # Now for the rest of the customizations
+   sudo cp -Rp $home_folder/.local/bin $home_folder/backup/skel/.local/
+   sudo cp -Rp $home_folder/.local/share/gnome* $home_folder/backup/skel/.local/share/
+   sudo cp -Rp $home_folder/.local/share/wpm $home_folder/backup/skel/.local/share/
+   sudo cp -Rp $home_folder/.local/share/evolution $home_folder/backup/skel/.local/share/
+   sudo cp -Rp $home_folder/.local/share/flatpak $home_folder/backup/skel/.local/share/
+   sudo cp -Rp $home_folder/.local/share/webkitgtk $home_folder/backup/skel/.local/share/
+   sudo cp -Rp $home_folder/.local/share/waydroid $home_folder/backup/skel/.local/share/
+   # Now for the configs
+   sudo cp -Rp $home_folder/.config/gnome* $home_folder/backup/skel/.config/
+   sudo cp -Rp $home_folder/.config/weston.ini $home_folder/backup/skel/.config/
+   sudo cp -Rp $home_folder/.cache/gnome* $home_folder/backup/skel/.cache/
+   sudo cp -Rp $home_folder/.cache/waydroid* $home_folder/backup/skel/.cache/
+   sudo cp -Rp $home_folder/waydroid-package-manager $home_folder/backup/skel/
+   echo -e "${IGre}  All set. You can find what was copied in $home_folder/backup ${RCol}"
+
+}
+
+# Wipe all of Waydroid current environmtnt, and re-init with a fresh version
+doWipeWaydroidAndReinit(){
+   echo -e "${IYel}  Cleaning Up and reiniting Waydroid ${RCol}"
+   sudo rm -rf $wd_data_loc
+   sudo waydroid init -f
+   echo -e "${IGre}  All set. ${RCol}"
+}
+
+# Generate new skel and update yolk
+doGenerateSkelAndLocals(){
+   echo -e "${IYel}  Cleaning Up ${RCol}"
+   sudo rm -rf /home/eggs/
+   sudo rm -rf $build_folder/*.iso
+   sudo rm -rf $build_folder/*.sha
+   sudo rm -rf /etc/skel/
+   echo -e "${IYel}  Rebuilding skel and locals ${RCol}"
+   sudo eggs calamares --install
+   sudo eggs tools:skel
+   sudo cp -Rp $home_folder/backup/skel/ /etc/
+   echo -e "${IYel}  Removing blocklisted items ${RCol}"
+   sudo rm -rf $BLOCKLIST
+   echo -e "${IYel}  Updating yolk ${RCol}"
+   if [[ ! -d /usr/local/yolk ]] && [[ -d /var/local/yolk ]]; then
+         sudo rm -rf /usr/local/yolk
+         sudo cp -r /var/local/yolk /usr/local/
+   fi
+   read -p "press any key to continue"
+}
+
+# Cleanup old eggs packaged iso, then regenerate skell and repackage the iso
+doWipeAndRebuild(){
+   doGenerateSkelAndLocals
+   echo -e "${IYel}  Refrying your eggs ${RCol}"
+   sudo eggs dad -d
+   sudo eggs dad
+   echo -e "${IYel}  Moving .iso to a folder you can access ${RCol}"
+   sudo mv /home/eggs/*.iso $build_folder
+   sudo chown $username $build_folder/*.iso
+   echo -e $(ls -a $build_folder/*.iso)
+   echo -e "${IYel}  Restoring ommitted packages ${RCol}"
+   # Install
+   sudo apt update
+   sudo apt --fix-broken install
+   echo -e "${IGre}  All set. ISO can be found in $build_folder${RCol}"
+}
+
+# Begin Operations
 
 if [ ! -f /usr/bin/eggs ]; then
 	echo -e "${IRed}  penguins-eggs is not installed. Please install and try running again. ${RCol}"
@@ -42,11 +131,14 @@ if [ ! -f /usr/bin/eggs ]; then
 fi
 
 # Ask what command they want
+
 if [ ! -d $build_folder ]; then
    echo "mkdir -p $build_folder"
    mkdir -p $build_folder
    # mkdir -p $(eval echo "~$USER")/.cache/refried-eggs
 fi 
+
+# Display Options
 
 echo -e "${IBlu}What do you want to do with eggs?${RCol}"
 echo -e "${IBlu}  1 - Wipe & rebuild ISO${RCol}"
@@ -57,84 +149,14 @@ echo -e "${IBlu}  4 - Generate just skel and locals${RCol}"
 read -p "Input 1, 2, 3 or 4 for your selection: " choice
 
 case $choice in
-  1) echo -e "${IYel}  Cleaning Up ${RCol}"
-     sudo rm -rf /home/eggs/
-     sudo rm -rf $build_folder/*.iso
-     sudo rm -rf $build_folder/*.sha
-     sudo rm -rf /etc/skel/
-     #~ sudo apt autoremove -y
-     read -p "press any key to continue"
-     echo -e "${IYel}  Rebuilding skel and locals ${RCol}"
-     sudo eggs calamares --install
-     sudo eggs tools:skel
-     sudo cp -Rp $home_folder/backup/skel/ /etc/
-     echo -e "${IYel}  Removing blocklisted items ${RCol}"
-     sudo rm -rf $BLOCKLIST
-     echo -e "${IYel}  Updating yolk ${RCol}"
-     if [ ! -d /usr/local/yolk ]; then
-          sudo rm -rf /usr/local/yolk
-          sudo cp -r /var/local/yolk /usr/local/
-     fi
-     read -p "press any key to continue"
-     echo -e "${IYel}  Refrying your eggs ${RCol}"
-     sudo eggs dad -d
-     sudo eggs dad
-     echo -e "${IYel}  Moving .iso to a folder you can access ${RCol}"
-     sudo mv /home/eggs/*.iso $build_folder
-     sudo chown $username $build_folder/*.iso
-     echo -e $(ls -a $build_folder/*.iso)
-     echo -e "${IYel}  Restoring ommitted packages ${RCol}"
-     # Install
-     sudo apt update
-
-     sudo apt --fix-broken install
-
-     echo -e "${IGre}  All set. ISO can be found in $build_folder${RCol}";;
-  2) echo -e "${IYel}  Gathering resources ${RCol}"
-     mkdir -p $home_folder/backup
-     mkdir -p $home_folder/backup/skel
-     mkdir -p $home_folder/backup/skel/.local
-     mkdir -p $home_folder/backup/skel/.local/share
-     sudo cp -Rp $home_folder/.themes $home_folder/backup/skel/
-     sudo cp -Rp $home_folder/.icons $home_folder/backup/skel/
-     sudo cp -Rp $home_folder/.backgrounds $home_folder/backup/skel/
-     sudo cp -Rp $home_folder/.local/share/applications $home_folder/backup/skel/.local/share/
-     sudo cp -Rp $home_folder/.local/share/backgrounds $home_folder/backup/skel/.local/share/
-     sudo cp -Rp $home_folder/.local/share/icons $home_folder/backup/skel/.local/share/
-     sudo cp -Rp $home_folder/.local/share/nautilus $home_folder/backup/skel/.local/share/
-     sudo cp -Rp $home_folder/.local/share/nautilus-python $home_folder/backup/skel/.local/share/
-     sudo cp -Rp $home_folder/.local/share/nemo $home_folder/backup/skel/.local/share/
-     sudo cp -Rp $home_folder/.local/share/nemo-python $home_folder/backup/skel/.local/share/
-     # Now for the rest of the customizations
-     sudo cp -Rp $home_folder/.local/bin $home_folder/backup/skel/.local/
-     sudo cp -Rp $home_folder/.local/share/gnome* $home_folder/backup/skel/.local/share/
-     sudo cp -Rp $home_folder/.local/share/wpm $home_folder/backup/skel/.local/share/
-     sudo cp -Rp $home_folder/.local/share/evolution $home_folder/backup/skel/.local/share/
-     sudo cp -Rp $home_folder/.local/share/flatpak $home_folder/backup/skel/.local/share/
-     sudo cp -Rp $home_folder/.local/share/webkitgtk $home_folder/backup/skel/.local/share/
-     sudo cp -Rp $home_folder/.local/share/waydroid $home_folder/backup/skel/.local/share/
-     echo -e "${IGre}  All set. You can find what was copied in $home_folder/backup ${RCol}";;
-  3) echo -e "${IYel}  Cleaning Up and reiniting Waydroid ${RCol}"
-     sudo rm -rf $wd_data_loc
-     sudo waydroid init -f
-     echo -e "${IGre}  All set. ${RCol}";;
-  4) echo -e "${IYel}  Cleaning Up ${RCol}"
-     sudo rm -rf /home/eggs/
-     sudo rm -rf $build_folder/*.iso
-     sudo rm -rf $build_folder/*.sha
-     sudo rm -rf /etc/skel/
-     echo -e "${IYel}  Rebuilding skel and locals ${RCol}"
-     sudo eggs calamares --install
-     sudo eggs tools:skel
-     sudo cp -Rp $home_folder/backup/skel/ /etc/
-     echo -e "${IYel}  Removing blocklisted items ${RCol}"
-     sudo rm -rf $BLOCKLIST
-     echo -e "${IYel}  Updating yolk ${RCol}"
-     if [ ! -d /usr/local/yolk ]; then
-          sudo rm -rf /usr/local/yolk
-          sudo cp -r /var/local/yolk /usr/local/
-     fi
-     read -p "press any key to continue";;
+  1) echo -e "${IYel} $choice ${RCol}"
+     doWipeAndRebuild ;;
+  2) echo -e "${IYel} $choice ${RCol}"
+     doGenerateBackup ;;
+  3) echo -e "${IYel} $choice ${RCol}"
+     doWipeWaydroidAndReinit ;;
+  4) echo -e "${IYel} $choice ${RCol}"
+     doGenerateSkelAndLocals ;;
   *) echo "Unrecognized selection: $choice" ;;
 esac
 
