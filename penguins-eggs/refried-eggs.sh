@@ -43,7 +43,7 @@ BLOCKLIST="/etc/skel/.config/geany /etc/skel/.config/GitKraken \
 /etc/skel/var/lib/flatpak/app/com.visualstudio.code"
 external_packages="gitkraken rpi-imager imager stacer bleachbit code"
 omitted_packages="filezilla filezilla-common gnome-builder ubuntu-cleaner"
-wd_data_loc="/var/lib/waydroid /home/.waydroid ~/waydroid ~/.share/waydroid ~/.local/share/applications/*aydroid* ~/.local/share/waydroid"
+wd_data_loc="/var/lib/waydroid /home/.waydroid $home_folder/waydroid $home_folder/.share/waydroid $home_folder/.local/share/applications/*aydroid* $home_folder/.local/share/waydroid"
 added_apps="nomachine"
 added_snap_apps="gitkraken firefox chromium"
 ommitted_snap_apps="gitkraken"
@@ -106,6 +106,7 @@ doGenerateBackup(){
    # Now for the rest of the customizations
    sudo cp -Rp $home_folder/.local/bin $home_folder/backup/skel/.local/
    sudo cp -Rp $home_folder/.local/share/gnome* $home_folder/backup/skel/.local/share/
+   sudo cp -Rp $home_folder/.local/share/grilo* $home_folder/backup/skel/.local/share/
    sudo cp -Rp $home_folder/.local/share/wpm $home_folder/backup/skel/.local/share/
    sudo cp -Rp $home_folder/.local/share/evolution $home_folder/backup/skel/.local/share/
    sudo cp -Rp $home_folder/.local/share/flatpak $home_folder/backup/skel/.local/share/
@@ -115,10 +116,15 @@ doGenerateBackup(){
    fi
 
    # Now for the configs
+   sudo cp -Rp $home_folder/.config/dconf* $home_folder/backup/skel/.config/
    sudo cp -Rp $home_folder/.config/gnome* $home_folder/backup/skel/.config/
+   sudo cp -Rp $home_folder/.config/gtk* $home_folder/backup/skel/.config/
+   sudo cp -Rp $home_folder/.config/flatpak* $home_folder/backup/skel/.config/
    sudo cp -Rp $home_folder/.config/weston.ini $home_folder/backup/skel/.config/
    sudo cp -Rp $home_folder/.cache/gnome* $home_folder/backup/skel/.cache/
+   sudo cp -Rp $home_folder/.cache/wd* $home_folder/backup/skel/.cache/
    sudo cp -Rp $home_folder/.cache/waydroid* $home_folder/backup/skel/.cache/
+   sudo cp -Rp $home_folder/.cache/flatpak* $home_folder/backup/skel/.cache/
    sudo cp -Rp $home_folder/waydroid-package-manager $home_folder/backup/skel/
    sudo chown -R $username $home_folder/backup
    echo -e "${IGre}  All set. You can find what was copied in $home_folder/backup ${RCol}"
@@ -175,7 +181,9 @@ doWipeAndRebuild(){
    # Move ommitted apps
    for oapp in $ommitted_snap_apps; do
       mkdir -p $temp_folder/osnap
-      sudo mv /var/lib/snap/$oapp $temp_folder/osnap/
+      sudo mv /var/lib/snap/$oapp* $temp_folder/osnap/
+      mkdir -p $temp_folder/osnap_bin
+      sudo mv /snap/bin/$oapp* $temp_folder/osnap_bin/
    done
    # Remove added flatpak apps
    for pack in $added_flatpak_apps; do
@@ -185,7 +193,32 @@ doWipeAndRebuild(){
    # remove any added bloat before packaging
    sudo rm -rf /home/eggs/*.iso 
    echo -e "${IYel}  Refrying your eggs ${RCol}"
-   sudo eggs dad
+   # Check for waydroid addon if version newer than 9.2.0. If so, clone it. 
+   # git clone https://github.com/pieroproietti/penguins-addons /usr/lib/penguins-eggs/addons/penguins-addons
+   function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
+
+   if [ $(version $(eggs version)) -gt $(version "penguins-eggs/9.2.0") ]; then
+      echo -e "${IYel}  > eggs 9.2.0 found ${RCol}"
+      eversion="newer"
+   elif [ $(version $(eggs version)) -lt $(version "penguins-eggs/9.2.0") ]; then
+      echo -e "${IYel}  < eggs 9.2.0 found ${RCol}"
+      eversion="older"
+   else
+      echo -e "${IYel}  = eggs 9.2.0 found ${RCol}"
+      eversion="equal"
+   fi
+
+   if [ "$eversion" == "newer" ]; then
+      if [ ! -d /usr/lib/penguins-eggs/addons/penguins-addons ]; then
+         git clone https://github.com/pieroproietti/penguins-addons /usr/lib/penguins-eggs/addons/penguins-addons
+      fi
+      # Update with the info we need for our builds
+      # "Waydroid-Linus-jammy-22.04-" , "lineage-18.1", "live", "password", etc...
+      sudo eggs produce --max --prefix Waydroid-Linux-jammy-22.04- --basename lineage-18.1 --theme /etc/penguins-eggs.d/addons/penguins-addons/waydroid --addons ../penguins-addons/waydroid
+   else 
+      sudo eggs dad
+   fi
+
    echo -e "${IYel}  Moving .iso to a folder you can access ${RCol}"
    sudo mv /home/eggs/*.iso $build_folder
    sudo chown $username $build_folder/*.iso
@@ -197,6 +230,7 @@ doWipeAndRebuild(){
    # Move ommitted apps
    for oapp in $ommitted_snap_apps; do
       sudo mv $temp_folder/osnap/$oapp /var/lib/snap/
+      sudo mv $temp_folder/osnap_bin/$oapp* /snap/bin/
    done   
    # Remove added flatpak apps
    for pack in $added_flatpak_apps; do
