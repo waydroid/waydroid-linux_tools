@@ -2,6 +2,13 @@
 
 These scripts are intended to aide in configuring and running the Waydroid-only sessions for Weston and Mutter
 
+## Dependencies:
+- sakura
+- mutter
+- weston
+
+## Install:
+
 To install and test, clone the repo, and cd into the directory, then:
 
 	./install.sh
